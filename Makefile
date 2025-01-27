@@ -1,24 +1,44 @@
-.PHONY: all
-all: format test build
+TARGET_EXEC ?= monitor 
 
-.PHONY: format
-format:
-	clang-format src/* include/* -i
+BUILD_DIR ?= ./build
+SRC_DIRS ?= ./src
 
-.PHONY: build
-build:
-	mkdir -p build
-	cd build && \
-	cmake .. && \
-	make
+SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+DEPS := $(OBJS:.o=.d)
 
-.PHONY: debug
-debug:
-	mkdir -p build
-	cd build && \
-	cmake -DCMAKE_BUILD_TYPE=debug .. && \
-	make
+INC_DIRS := $(shell find $(SRC_DIRS) -type d) include
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+
+CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -std=c++11
+LDFLAGS  ?= -lncurses 
+
+$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
+	# $(CC) $(OBJS) -o $@ $(LDFLAGS)
+
+# assembly
+$(BUILD_DIR)/%.s.o: %.s
+	$(MKDIR_P) $(dir $@)
+	$(AS) $(ASFLAGS) -c $< -o $@
+
+# c source
+$(BUILD_DIR)/%.c.o: %.c
+	$(MKDIR_P) $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+# c++ source
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	$(MKDIR_P) $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
 
 .PHONY: clean
+
 clean:
-	rm -rf build
+	$(RM) -r $(BUILD_DIR)
+
+-include $(DEPS)
+
+MKDIR_P ?= mkdir -p
+
