@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "linux_parser.h"
 
@@ -10,6 +11,9 @@ using std::stof;
 using std::string;
 using std::to_string;
 using std::vector;
+using std::ifstream;
+using std::cout;
+using std::cerr;
 
 // DONE: An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() {
@@ -71,7 +75,29 @@ vector<int> LinuxParser::Pids() {
 float LinuxParser::MemoryUtilization() { return 0.0; }
 
 // TODO: Read and return the system uptime
-long LinuxParser::UpTime() { return 0; }
+long LinuxParser::UpTime() {
+  double ret = -1;
+  ifstream uptime = ifstream(kProcDirectory + kUptimeFilename);
+  if (uptime.is_open()) {
+    string line;
+    if (getline(uptime, line, ' ')){
+      std::istringstream iss(line);
+      string num_str;
+      iss >> num_str;
+      try {
+        ret = std::stod(num_str);
+      } catch (...) {
+        cerr << "Can't convert '" << num_str << "' to a double\n";
+      }
+    } else {
+      cerr << "'getline' error\n";
+    }
+    uptime.close();
+  } else {
+    cerr << "File not open\n";
+  }
+  return ret;
+}
 
 // TODO: Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() { return 0; }
@@ -87,7 +113,21 @@ long LinuxParser::ActiveJiffies() { return 0; }
 long LinuxParser::IdleJiffies() { return 0; }
 
 // TODO: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization() { return {}; }
+vector<string> LinuxParser::CpuUtilization() { 
+  string os, kernel, version;
+  string line;
+  vector<string> ret;
+  std::ifstream stream(kProcDirectory + kVersionFilename);
+  if (stream.is_open()) {
+    std::getline(stream, line);
+    std::istringstream linestream(line);
+    linestream >> os >> version >> kernel;
+  }
+  ret.push_back(os);
+  ret.push_back(version);
+  ret.push_back(kernel);
+  return ret; 
+}
 
 // TODO: Read and return the total number of processes
 int LinuxParser::TotalProcesses() { return 0; }
