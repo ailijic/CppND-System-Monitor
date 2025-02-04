@@ -72,7 +72,44 @@ vector<int> LinuxParser::Pids() {
 }
 
 // TODO: Read and return the system memory utilization
-float LinuxParser::MemoryUtilization() { return 0.0; }
+// TODO(ai): pull out common logic
+float LinuxParser::MemoryUtilization() {
+  float ret = -1;
+  float mem_total=-1, mem_free=-1;
+  ifstream mem = ifstream(kProcDirectory + kMeminfoFilename);
+  if (mem.is_open()) {
+    string line;
+    cerr << "line: " << line << "\n";
+   if (getline(mem, line)) {
+     cerr << "line: " << line << "\n";
+     std::istringstream iss(line);
+     string field, val, unit;
+     iss >> field >> val >> unit;
+     cerr << val << "\n";
+     try {
+        mem_total = std::stof(val);
+      } catch (...) {
+        cerr << "Can't convert '" << val << "' to a float\n";
+      }
+   }
+     if (getline(mem, line)) {
+     cerr << "line: " << line << "\n";
+     std::istringstream iss(line);
+     string field, val, unit;
+     iss >> field >> val >> unit;
+     cerr <<field << val << "\n";
+         try {
+        mem_free = std::stof(val);
+      } catch (...) {
+        cerr << "Can't convert '" << val << "' to a float\n";
+      }
+   }
+  }
+  if (mem_total != -1 && mem_free != -1) {
+    ret = (mem_total - mem_free) / mem_total;
+  }
+  return ret;
+}
 
 // TODO: Read and return the system uptime
 long LinuxParser::UpTime() {
