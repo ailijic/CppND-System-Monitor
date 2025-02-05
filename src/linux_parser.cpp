@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <numeric>
 
 #include "linux_parser.h"
 
@@ -154,11 +155,8 @@ long LinuxParser::UpTime() {
 
 // TODO: Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() {
-  long jiff_list[jiff_types_len_e];
-  for (int i = 0; i < jiff_types_len_e; i++) {
-    // TODO(ai): FIX ME
-    // jiff_list[i] = std::stol(curr_g[i]);
-  }
+  return std::accumulate(curr_g.begin(), curr_g.end(), 0L) -
+         std::accumulate(prev_g.begin(), prev_g.end(), 0L);
 }
 
 // TODO: Read and return the number of active jiffies for a PID
@@ -169,12 +167,12 @@ long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) {
 
 // TODO: Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() {
-  return 0;
+  return Jiffies() - IdleJiffies();
 }
 
 // TODO: Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() {
-  return 0;
+  return curr_g[idle_e] - prev_g[idle_e];
 }
 
 // TODO: Read and return CPU utilization
@@ -213,6 +211,7 @@ vector<string> LinuxParser::CpuUtilization() {
   //.push_back(guest);
   // prev_g = curr_g;
   // curr_g = ret;
+  /*
   for (long n : prev_g) {
     cerr << n << ", ";
   }
@@ -221,6 +220,7 @@ vector<string> LinuxParser::CpuUtilization() {
     cerr << n << ", ";
   }
   cerr << "\n";
+  */
   return ret;
 }
 
