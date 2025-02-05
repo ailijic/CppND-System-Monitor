@@ -232,7 +232,25 @@ int LinuxParser::TotalProcesses() {
 
 // TODO: Read and return the number of running processes
 int LinuxParser::RunningProcesses() {
-  return 0;
+  int ret = -1;
+  string os, kernel, version, field, val;
+  string line;
+  std::ifstream stream(kProcDirectory + kStatFilename);
+  if (stream.is_open()) {
+    for (;;) {
+      if (!std::getline(stream, line)) {
+        break;
+      }
+      std::istringstream iss(line);
+      iss >> field;
+      if (field == "procs_running") {
+        iss >> val;
+        ret = std::stoi(val);
+        break;
+      }
+    }
+  }
+  return ret;
 }
 
 // TODO: Read and return the command associated with a process
