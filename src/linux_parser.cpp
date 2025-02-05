@@ -150,6 +150,7 @@ long LinuxParser::UpTime() {
   } else {
     cerr << "File not open\n";
   }
+  // return 42*1000*1000;
   return ret;
 }
 
