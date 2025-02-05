@@ -1,9 +1,8 @@
 #include "processor.h"
 #include "linux_parser.h"
 
-// TODO: Return the aggregate CPU utilization
 float Processor::Utilization() {
-  // Call CpuUtilization to cause the jiffie values to update
+  // Call CpuUtilization() to cause the jiffie values to update
   LinuxParser::CpuUtilization();
 
   float jiffies = LinuxParser::Jiffies();
