@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 #include "linux_parser.h"
 
@@ -14,6 +15,13 @@ using std::vector;
 using std::ifstream;
 using std::cout;
 using std::cerr;
+
+typedef enum Jiff_Types {
+  user_e, nice_e, sys_e, idle_e, io_e, irq_e, s_irq_e, steal_e, guest_e, jiff_types_len_e,
+} Jiff_Types;
+
+static vector<long> prev_g = vector<long>(jiff_types_len_e);
+static vector<long> curr_g = vector<long>(jiff_types_len_e);
 
 // DONE: An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() {
@@ -136,7 +144,13 @@ long LinuxParser::UpTime() {
 }
 
 // TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { return 0; }
+long LinuxParser::Jiffies() {
+  long jiff_list[jiff_types_len_e];
+  for (int i = 0; i < jiff_types_len_e; i++) {
+    //TODO(ai): FIX ME
+    // jiff_list[i] = std::stol(curr_g[i]);
+  }
+}
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
@@ -150,19 +164,45 @@ long LinuxParser::IdleJiffies() { return 0; }
 
 // TODO: Read and return CPU utilization
 vector<string> LinuxParser::CpuUtilization() { 
-  string os, kernel, version;
+  string cpu;
   string line;
-  vector<string> ret;
-  std::ifstream stream(kProcDirectory + kVersionFilename);
+  vector<string> ret = vector<string>(jiff_types_len_e);
+  std::ifstream stream(kProcDirectory + kStatFilename);
   if (stream.is_open()) {
     std::getline(stream, line);
-    std::istringstream linestream(line);
-    linestream >> os >> version >> kernel;
+    std::istringstream iss(line);
+    iss >> cpu; // get rid of cpu name so we only have strings of numbers
+    for (string& str : ret) {
+      iss >> str;
+      // cerr << str << "; ";
+    }
+    // cerr << "\n";
+    // vector<long> nums = vector<long>(jiff_types_len_e);
+    //prev_g = std::move(curr_g);
+    prev_g = curr_g;
+    // curr_g.reserve(jiff_types_len_e);
+    std::transform(ret.begin(), ret.end(), curr_g.begin(), [] (string const& str) { return std::stol(str); });
+    /*
+    for (long n : nums) {
+      cerr << n << ", ";
+    }
+    cerr << "\n";
+    */
+    // iss >>
+    // cpu >> user >> nice >> sys >> idle >> io >> irq >> s_irq >> steal >> guest;
   }
-  ret.push_back(os);
-  ret.push_back(version);
-  ret.push_back(kernel);
-  return ret; 
+  // ret.push_back(user).push_back(nice).push_back(sys).push_back(idle)
+  //   .push_back(io).push_back(irq).push_back(s_irq).push_back(steal)
+     //.push_back(guest);
+  // prev_g = curr_g;
+  // curr_g = ret;
+  for (long n : prev_g) {
+    cerr << n << ", ";
+  } cerr << "\n";
+  for (long n : curr_g) {
+    cerr << n << ", ";
+  } cerr << "\n";
+  return ret;
 }
 
 // TODO: Read and return the total number of processes
