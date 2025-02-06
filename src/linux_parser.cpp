@@ -227,7 +227,7 @@ vector<string> LinuxParser::CpuUtilization() {
 
 // TODO: Read and return the total number of processes
 int LinuxParser::TotalProcesses() {
-  return 0;
+  return LinuxParser::Pids().size();
 }
 
 // TODO: Read and return the number of running processes
