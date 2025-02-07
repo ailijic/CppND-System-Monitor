@@ -75,7 +75,7 @@ string LinuxParser::Kernel() {
   return kernel;
 }
 
-// BONUS: Update this to use std::filesystem
+/// Return vector of all PIDs for running processes
 vector<int> LinuxParser::Pids() {
   vector<int> pids;
   DIR* directory = opendir(kProcDirectory.c_str());
@@ -276,7 +276,7 @@ string LinuxParser::Command(int pid) {
   }
 }
 
-/// Read and return the memory used by a process
+/// Read and return the memory used by a process (KiB)
 string LinuxParser::Ram(int pid) {
   string line;
   string key;
@@ -347,6 +347,17 @@ long LinuxParser::UpTime(int pid) {
       std::getline(stream, line, ' ');
     }
     return UpTime() - std::stol(line) / sysconf(_SC_CLK_TCK);
+  }
+  return -1;
+}
+
+/// Return PID of this process
+int LinuxParser::SelfPid() {
+  string line;
+  std::ifstream stream(kProcDirectory + "self" + kStatFilename);
+  if (stream.is_open()) {
+    std::getline(stream, line, ' ');
+    return std::stol(line);
   }
   return -1;
 }

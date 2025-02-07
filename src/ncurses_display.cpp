@@ -67,7 +67,7 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
   mvwprintw(window, ++row, pid_column, "PID");
   mvwprintw(window, row, user_column, "USER");
   mvwprintw(window, row, cpu_column, "CPU[%%]");
-  mvwprintw(window, row, ram_column, "RAM[MB]");
+  mvwprintw(window, row, ram_column, "RAM[KB]");
   mvwprintw(window, row, time_column, "TIME+");
   mvwprintw(window, row, command_column, "COMMAND");
   wattroff(window, COLOR_PAIR(2));
@@ -81,7 +81,7 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
     mvwprintw(window, row, pid_column, "%s",
               to_string(processes[i].Pid()).c_str());
     mvwprintw(window, row, user_column, "%s", processes[i].User().c_str());
-    float cpu = processes[i].CpuUtilization() * 100;
+    float cpu = processes[i].CpuUtilization();
     mvwprintw(window, row, cpu_column, "%s",
               to_string(cpu).substr(0, 4).c_str());
     mvwprintw(window, row, ram_column, "%s", processes[i].Ram().c_str());

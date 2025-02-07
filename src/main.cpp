@@ -2,15 +2,14 @@
 #include "system.h"
 
 #include "linux_parser.h"
+#include <unistd.h>
 #include <iostream>
 #include <vector>
 #include <chrono>
 #include <thread>
-#include <experimental/filesystem>
 #include <dirent.h>
 #include <cctype>
 
-namespace fs = std::experimental::filesystem;
 using std::cout;
 
 int main() {
@@ -60,7 +59,17 @@ int main() {
     }
     cout << "procs: " << num_proc << "\n";
     */
-
+  
+  /// show cmd parser is working
+  // int pid = 481;
+  // cout << "PID " << pid << " CMD: " << LinuxParser::Command(10) << "\n";
+  // cout << "PID " << "self" << " Pss(Mem): " << LinuxParser::Ram(59) << "\n";
+  // cout << "Pid: " << pid << "\tUid: " << LinuxParser::Uid(pid) << "\n";
+  // cout << "Pid: " << pid << "\tUser: " << LinuxParser::User(pid) << "\n";
+  // cout << "Pid: " << pid << "\t" "Up Time: " << LinuxParser::UpTime(pid) << "\t""Ticks/sec: " << sysconf(_SC_CLK_TCK) << "\n";
+  // cout << "Pid: " << pid << "\t" "Up Time: " << LinuxParser::ActiveJiffies(pid) << "\n";
+  
+  
   System system;
   NCursesDisplay::Display(system);
 }
