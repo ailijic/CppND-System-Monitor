@@ -140,7 +140,7 @@ float LinuxParser::MemoryUtilization() {
 
 /// Read and return the system uptime
 long LinuxParser::UpTime() {
-  double ret = -1;
+  double ret = 0;
   ifstream uptime = ifstream(kProcDirectory + kUptimeFilename);
   if (uptime.is_open()) {
     string line;
@@ -151,16 +151,15 @@ long LinuxParser::UpTime() {
       try {
         ret = std::stod(num_str);
       } catch (...) {
-        cerr << "Can't convert '" << num_str << "' to a double\n";
+        return -1;
       }
     } else {
-      cerr << "'getline' error\n";
+      return -2;
     }
     uptime.close();
   } else {
-    cerr << "File not open\n";
+    return -3;
   }
-  // return 42*1000*1000;
   return ret;
 }
 
@@ -345,14 +344,13 @@ string LinuxParser::User(int pid) {
 
 /// Read and return the uptime of a process (seconds)
 long LinuxParser::UpTime(int pid) {
-  fs::path filePath = kProcDirectory + to_string(pid);
-  if (fs::exists(filePath)) {
-    fs::file_time_type lastWriteTime = fs::last_write_time(filePath);
-    // Convert to system time
-    std::time_t tt = std::chrono::system_clock::to_time_t(lastWriteTime);
-    return std::time(nullptr) -
-           tt;  // Return current num secs minus lastWriteTime
-  } else {
-    return -1;
+  string line;
+  std::ifstream stream(kProcDirectory + to_string(pid) + kStatFilename);
+  if (stream.is_open()) {
+    for (int i = 0; i < start_time_e; i++) {
+      std::getline(stream, line, ' ');
+    }
+    return UpTime() - std::stol(line) / sysconf(_SC_CLK_TCK);
   }
+  return -1;
 }
