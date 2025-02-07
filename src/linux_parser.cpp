@@ -6,8 +6,12 @@
 #include <iostream>
 #include <algorithm>
 #include <numeric>
+#include <experimental/filesystem>
+#include <iomanip>
 
 #include "linux_parser.h"
+
+namespace fs = std::experimental::filesystem;
 
 using std::stof;
 using std::string;
@@ -303,14 +307,39 @@ string LinuxParser::Uid(int pid) {
   return value;
 }
 
-// TODO: Read and return the user associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::User(int pid[[maybe_unused]]) {
-  return string();
+/// Read and return the user associated with a process
+string LinuxParser::User(int pid) {
+  string uid = Uid(pid);
+  string line;
+  string uname, user_id;
+  std::ifstream filestream(kPasswordPath);
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line, ':')) {  // Get user column
+      uname = line;
+      std::getline(filestream, line, ':');  // Get password column
+      std::getline(filestream, line, ':');  // Get uid column
+      user_id = line;
+      if (user_id ==
+          uid) {  // Check to see if we found the user we are looking for
+        return uname;
+      } else {  // If not the user we are looking for go to the next line
+        std::getline(filestream, line);
+      }
+    }
+  }
+  return uname;
 }
 
-// TODO: Read and return the uptime of a process
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid[[maybe_unused]]) {
-  return 0;
+/// Read and return the uptime of a process (seconds)
+long LinuxParser::UpTime(int pid) {
+  fs::path filePath = kProcDirectory + to_string(pid);
+  if (fs::exists(filePath)) {
+    fs::file_time_type lastWriteTime = fs::last_write_time(filePath);
+    // Convert to system time
+    std::time_t tt = std::chrono::system_clock::to_time_t(lastWriteTime);
+    return std::time(nullptr) -
+           tt;  // Return current num secs minus lastWriteTime
+  } else {
+    return -1;
+  }
 }
