@@ -102,13 +102,10 @@ float LinuxParser::MemoryUtilization() {
   ifstream mem = ifstream(kProcDirectory + kMeminfoFilename);
   if (mem.is_open()) {
     string line;
-    // cerr << "line: " << line << "\n";
     if (getline(mem, line)) {
-      // cerr << "line: " << line << "\n";
       std::istringstream iss(line);
       string field, val, unit;
       iss >> field >> val >> unit;
-      // cerr << val << "\n";
       try {
         mem_total = std::stof(val);
       } catch (...) {
@@ -116,11 +113,9 @@ float LinuxParser::MemoryUtilization() {
       }
     }
     if (getline(mem, line)) {
-      // cerr << "line: " << line << "\n";
       std::istringstream iss(line);
       string field, val, unit;
       iss >> field >> val >> unit;
-      // cerr <<field << val << "\n";
       try {
         mem_free = std::stof(val);
       } catch (...) {
@@ -200,41 +195,11 @@ vector<string> LinuxParser::CpuUtilization() {
     iss >> cpu;  // get rid of cpu name so we only have strings of numbers
     for (string& str : ret) {
       iss >> str;
-      // cerr << str << "; ";
     }
-    // cerr << "\n";
-    // vector<long> nums = vector<long>(jiff_types_len_e);
-    // prev_g = std::move(curr_g);
     prev_g = curr_g;
-    // curr_g.reserve(jiff_types_len_e);
     std::transform(ret.begin(), ret.end(), curr_g.begin(),
                    [](string const& str) { return std::stol(str); });
-    /*
-    for (long n : nums) {
-      cerr << n << ", ";
-    }
-    cerr << "\n";
-    */
-    // iss >>
-    // cpu >> user >> nice >> sys >> idle >> io >> irq >> s_irq >> steal >>
-    // guest;
   }
-  // ret.push_back(user).push_back(nice).push_back(sys).push_back(idle)
-  //   .push_back(io).push_back(irq).push_back(s_irq).push_back(steal)
-  //.push_back(guest);
-  // prev_g = curr_g;
-  // curr_g = ret;
-  /*
-  for (long n : prev_g) {
-    cerr << n << ", ";
-  }
-  cerr << "\n";
-  for (long n : curr_g) {
-    cerr << n << ", ";
-  }
-  cerr << "\n";
-  */
-  return ret;
 }
 
 /// Read and return the total number of processes
