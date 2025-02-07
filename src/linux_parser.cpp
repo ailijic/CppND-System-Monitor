@@ -6,12 +6,8 @@
 #include <iostream>
 #include <algorithm>
 #include <numeric>
-#include <experimental/filesystem>
-#include <iomanip>
 
 #include "linux_parser.h"
-
-namespace fs = std::experimental::filesystem;
 
 using std::stof;
 using std::string;
