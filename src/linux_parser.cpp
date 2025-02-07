@@ -21,6 +21,12 @@ using std::ifstream;
 using std::cout;
 using std::cerr;
 
+// Column IDs for /proc/[pid]/stat
+enum {
+  user_jiff_e = 14,
+  start_time_e = 22,
+};
+
 typedef enum Jiff_Types {
   user_e,
   nice_e,
@@ -164,10 +170,17 @@ long LinuxParser::Jiffies() {
          std::accumulate(prev_g.begin(), prev_g.end(), 0L);
 }
 
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) {
-  return 0;
+/// Read and return the number of active jiffies for a PID
+long LinuxParser::ActiveJiffies(int pid) {
+  string line;
+  std::ifstream stream(kProcDirectory + to_string(pid) + kStatFilename);
+  if (stream.is_open()) {
+    for (int i = 0; i < user_jiff_e; i++) {
+      std::getline(stream, line, ' ');
+    }
+    return std::stol(line);
+  }
+  return -1;
 }
 
 /// Read and return the number of active jiffies for the system
