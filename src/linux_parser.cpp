@@ -200,6 +200,7 @@ vector<string> LinuxParser::CpuUtilization() {
     std::transform(ret.begin(), ret.end(), curr_g.begin(),
                    [](string const& str) { return std::stol(str); });
   }
+  return ret;
 }
 
 /// Read and return the total number of processes
